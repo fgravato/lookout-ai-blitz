@@ -141,25 +141,59 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 16px;
-    text-align: center;
+    padding: 14px 16px;
+  }
+
+  .stat-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 4px;
   }
 
   .stat-num {
     font-family: var(--sans);
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--green);
     line-height: 1;
-    margin-bottom: 4px;
     transition: color 0.3s;
   }
 
   .stat-label {
     font-size: 10px;
     color: var(--muted);
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
+  }
+
+  .trend-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--green-dim);
+    color: var(--green);
+    white-space: nowrap;
+    transition: all 0.4s;
+    flex-shrink: 0;
+    margin-left: 6px;
+  }
+
+  .trend-pill.trend-up   { background: var(--green-dim); color: var(--green); }
+  .trend-pill.trend-red  { background: var(--red-dim);   color: var(--red);   }
+  .trend-pill.trend-blue { background: var(--blue-dim);  color: var(--blue);  }
+  .trend-pill.trend-amber{ background: var(--amber-dim); color: var(--amber); }
+  .trend-pill.trend-down { background: #1a2530;          color: var(--muted); }
+
+  .stat-flash {
+    animation: numFlash 0.35s ease;
+  }
+
+  @keyframes numFlash {
+    0%   { opacity: 1; }
+    30%  { opacity: 0.3; }
+    100% { opacity: 1; }
   }
 
   /* LAUNCH CARD */
@@ -431,7 +465,70 @@
 
   .feed-empty .icon { font-size: 32px; margin-bottom: 10px; opacity: 0.4; }
 
-  /* FOOTER */
+  /* DURATION PICKER */
+  .duration-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .duration-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .duration-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .dur-pill {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .dur-pill:hover { border-color: var(--green); color: var(--green); }
+  .dur-pill.active { border-color: var(--green); background: var(--green-dim); color: var(--green); font-weight: 700; }
+
+  /* TREND SPIKER ROW */
+  .spiker-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .spiker-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .spiker-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #2a1a0a;
+    border: 1px solid #f5a62340;
+    color: var(--amber);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .spiker-tag .fire { font-size: 13px; }
   footer {
     text-align: center;
     font-size: 11px;
@@ -461,22 +558,69 @@
   <!-- STATS -->
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-top">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="trend-pill" id="trend-total">&#8593; 0</div>
+      </div>
       <div class="stat-label">Domains Hit</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="stat-queue">0</div>
-      <div class="stat-label">Queued</div>
+      <div class="stat-top">
+        <div class="stat-num" id="stat-apps" style="color: var(--amber)">2,658</div>
+        <div class="trend-pill trend-up" id="trend-apps">&#8593; 12</div>
+      </div>
+      <div class="stat-label">AI Apps Tracked</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num" id="stat-blocked" style="color: var(--red)">0</div>
-      <div class="stat-label">High Risk</div>
+      <div class="stat-top">
+        <div class="stat-num" id="stat-blocked" style="color: var(--red)">0</div>
+        <div class="trend-pill trend-red" id="trend-blocked">&#8593; 0</div>
+      </div>
+      <div class="stat-label">High Risk / Blocked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-num" id="stat-dns" style="color: var(--blue)">0</div>
+        <div class="trend-pill trend-blue" id="trend-dns">&#8593; 0</div>
+      </div>
+      <div class="stat-label">DNS Lookups / min</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-num" id="stat-unsanctioned" style="color: var(--amber)">0</div>
+        <div class="trend-pill" id="trend-unsanctioned">&#8593; 0</div>
+      </div>
+      <div class="stat-label">Unsanctioned Hits</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-num" id="stat-devices">1</div>
+        <div class="trend-pill trend-up" id="trend-devices">&#8212;</div>
+      </div>
+      <div class="stat-label">Active Devices</div>
     </div>
   </div>
 
   <!-- LAUNCH CARD -->
   <div class="launch-card">
     <div class="launch-title">Traffic Simulator</div>
+
+    <!-- Session Duration Picker -->
+    <div class="duration-row">
+      <div class="duration-label">Session Duration</div>
+      <div class="duration-pills">
+        <button class="dur-pill active" data-mins="5"  onclick="setDuration(this)">5 min</button>
+        <button class="dur-pill"        data-mins="15" onclick="setDuration(this)">15 min</button>
+        <button class="dur-pill"        data-mins="30" onclick="setDuration(this)">30 min</button>
+        <button class="dur-pill"        data-mins="60" onclick="setDuration(this)">60 min</button>
+      </div>
+    </div>
+
+    <!-- Trend Spiker Display -->
+    <div class="spiker-row" id="spiker-row" style="display:none">
+      <div class="duration-label">🔥 Trending This Session</div>
+      <div id="spiker-list" class="spiker-list"></div>
+    </div>
 
     <button class="btn-launch" id="btn-launch" onclick="startBlitz()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -491,7 +635,7 @@
     <div class="progress-wrap">
       <div class="progress-meta">
         <span id="prog-label">Ready</span>
-        <span id="prog-pct">0%</span>
+        <span id="prog-pct" style="font-size:11px;color:var(--muted)">—</span>
       </div>
       <div class="progress-bar-bg">
         <div class="progress-bar-fill" id="prog-fill"></div>
@@ -608,6 +752,81 @@ let running = false;
 let abortFlag = false;
 let totalHit = 0;
 let blockedHit = 0;
+let unsanctionedHit = 0;
+let dnsRate = 0;
+let appsTracked = 2658;
+
+// Trending state — stores previous values for delta display
+const prev = { total: 0, blocked: 0, unsanctioned: 0, dns: 0, apps: 2658 };
+
+// Ambient drift — runs even when blitz is idle, makes the dashboard feel alive
+let ambientTimer = null;
+
+function startAmbientDrift() {
+  if (ambientTimer) return;
+  ambientTimer = setInterval(() => {
+    if (running) return; // blitz handles its own updates while active
+
+    // AI apps tracked drifts up slowly (realistic -- new tools discovered)
+    if (Math.random() < 0.3) {
+      const delta = randBetween(1, 4);
+      appsTracked += delta;
+      animateStat('stat-apps', appsTracked.toLocaleString(), 'trend-apps', `↑ ${delta}`, 'trend-up');
+    }
+  }, 4000);
+}
+
+function animateStat(elId, newVal, trendId, trendText, trendClass) {
+  const el = document.getElementById(elId);
+  const tr = document.getElementById(trendId);
+  if (!el || !tr) return;
+
+  el.classList.remove('stat-flash');
+  void el.offsetWidth; // reflow to restart animation
+  el.classList.add('stat-flash');
+  el.textContent = newVal;
+
+  tr.className = 'trend-pill ' + trendClass;
+  tr.innerHTML = trendText;
+}
+
+function updateStats() {
+  // Domains hit
+  const dTotal = totalHit - prev.total;
+  if (dTotal !== 0) {
+    animateStat('stat-total', totalHit, 'trend-total',
+      (dTotal > 0 ? '↑ ' : '↓ ') + Math.abs(dTotal),
+      dTotal > 0 ? 'trend-up' : 'trend-down');
+    prev.total = totalHit;
+  }
+
+  // Blocked
+  const dBlocked = blockedHit - prev.blocked;
+  if (dBlocked !== 0) {
+    animateStat('stat-blocked', blockedHit, 'trend-blocked',
+      '↑ ' + dBlocked, 'trend-red');
+    prev.blocked = blockedHit;
+  }
+
+  // Unsanctioned
+  const dUnsanctioned = unsanctionedHit - prev.unsanctioned;
+  if (dUnsanctioned !== 0) {
+    animateStat('stat-unsanctioned', unsanctionedHit, 'trend-unsanctioned',
+      '↑ ' + dUnsanctioned, 'trend-amber');
+    prev.unsanctioned = unsanctionedHit;
+  }
+
+  // DNS rate -- randomize around the hit pace to look like real telemetry
+  const newDns = running
+    ? randBetween(Math.max(1, dnsRate - 3), dnsRate + 5)
+    : Math.max(0, dnsRate - randBetween(1, 3));
+  const dDns = newDns - prev.dns;
+  dnsRate = newDns;
+  animateStat('stat-dns', newDns, 'trend-dns',
+    (dDns >= 0 ? '↑ ' : '↓ ') + Math.abs(dDns),
+    dDns >= 0 ? 'trend-blue' : 'trend-down');
+  prev.dns = newDns;
+}
 
 function shuffle(arr) {
   const a = [...arr];
@@ -632,91 +851,242 @@ function ts() {
 }
 
 function catClass(cat) {
-  return {
-    sanctioned:   'badge-sanctioned',
-    unsanctioned: 'badge-unsanctioned',
-    blocked:      'badge-blocked',
-    developer:    'badge-developer',
-  }[cat] || 'badge-unsanctioned';
+  return { sanctioned:'badge-sanctioned', unsanctioned:'badge-unsanctioned', blocked:'badge-blocked', developer:'badge-developer' }[cat] || 'badge-unsanctioned';
 }
 
 function catLabel(cat) {
-  return {
-    sanctioned:   'Sanctioned',
-    unsanctioned: 'Unsanctioned',
-    blocked:      'Blocked',
-    developer:    'Dev / Code',
-  }[cat] || cat;
+  return { sanctioned:'Sanctioned', unsanctioned:'Unsanctioned', blocked:'Blocked', developer:'Dev / Code' }[cat] || cat;
 }
 
-function addFeedItem(entry) {
+// ─── SESSION DURATION ────────────────────────────────────────────────────────
+let sessionMins = 5;
+
+function setDuration(btn) {
+  document.querySelectorAll('.dur-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  sessionMins = parseInt(btn.dataset.mins);
+}
+
+// ─── TREND SPIKER ────────────────────────────────────────────────────────────
+// Picks 2-3 domains at session start to "go viral" — they get hit 3-5x more
+let spikers = [];
+
+function pickSpikers() {
+  // Only pick from unsanctioned/blocked — those are the interesting ones
+  const pool = DOMAINS.filter(d => d.cat === 'unsanctioned' || d.cat === 'blocked');
+  spikers = shuffle(pool).slice(0, randBetween(2, 3));
+
+  const row = document.getElementById('spiker-row');
+  const list = document.getElementById('spiker-list');
+  list.innerHTML = spikers.map(s =>
+    `<div class="spiker-tag"><span class="fire">🔥</span>${s.label}</div>`
+  ).join('');
+  row.style.display = 'flex';
+}
+
+// ─── WEIGHTED POOL ───────────────────────────────────────────────────────────
+// Build the firing queue for a session based on weights + spike multipliers
+function buildQueue(sessionMs) {
+  // Base weights — higher = fires more often, like real employee distribution
+  const weights = {
+    'chat.openai.com':       10,
+    'gemini.google.com':      7,
+    'grammarly.com':          8,
+    'notion.so':              6,
+    'copilot.microsoft.com':  6,
+    'github.com':             5,
+    'claude.ai':              5,
+    'anthropic.com':          3,
+    'perplexity.ai':          5,
+    'cursor.com':             5,
+    'replit.com':             4,
+    'x.ai':                   4,
+    'deepseek.com':           3,
+    'huggingface.co':         3,
+    'gamma.app':              3,
+    'otter.ai':               3,
+    'fireflies.ai':           3,
+    'fathom.video':           2,
+    'elevenlabs.io':          2,
+    'runway.ml':              2,
+  };
+
+  // Estimate how many hits we can fit in the session
+  // Bursts fire 5-12 hits, then 20-60s quiet. Avg ~8 hits per burst.
+  // Avg burst gap = 40s. So bursts per session = sessionMs / 40000.
+  const estimatedBursts = Math.floor(sessionMs / 40000);
+  const estimatedHits   = estimatedBursts * 8;
+
+  // Build weighted domain list
+  const weighted = [];
+  for (const d of DOMAINS) {
+    const w = weights[d.domain] || 1;
+    // Spike multiplier — spikers get 4x weight
+    const spike = spikers.find(s => s.domain === d.domain) ? 4 : 1;
+    for (let i = 0; i < w * spike; i++) weighted.push(d);
+  }
+
+  // Sample from weighted pool enough times to fill the session
+  const queue = [];
+  for (let i = 0; i < estimatedHits * 2; i++) {
+    queue.push(weighted[Math.floor(Math.random() * weighted.length)]);
+  }
+  return queue;
+}
+
+// ─── FEED ────────────────────────────────────────────────────────────────────
+function addFeedItem(entry, isSpike = false) {
   const list = document.getElementById('feed-list');
   const empty = document.getElementById('feed-empty');
   if (empty) empty.remove();
 
   const row = document.createElement('div');
   row.className = 'feed-item';
+  const spikeTag = isSpike ? `<span style="font-size:11px;margin-right:4px">🔥</span>` : '';
   row.innerHTML = `
     <span class="feed-time">${ts()}</span>
-    <span class="feed-domain" title="${entry.domain}">${entry.label} <span style="color:var(--muted);font-size:11px">&nbsp;${entry.domain}</span></span>
+    <span class="feed-domain" title="${entry.domain}">${spikeTag}${entry.label} <span style="color:var(--muted);font-size:11px">&nbsp;${entry.domain}</span></span>
     <span class="badge ${catClass(entry.cat)}">${catLabel(entry.cat)}</span>
   `;
   list.prepend(row);
-
-  // Cap feed at 200 items
   const items = list.querySelectorAll('.feed-item');
-  if (items.length > 200) items[items.length - 1].remove();
+  if (items.length > 300) items[items.length - 1].remove();
 }
 
-function updateStats(queueLen) {
-  document.getElementById('stat-total').textContent = totalHit;
-  document.getElementById('stat-queue').textContent = queueLen;
-  document.getElementById('stat-blocked').textContent = blockedHit;
+// ─── STATS ───────────────────────────────────────────────────────────────────
+function animateStat(elId, newVal, trendId, trendText, trendClass) {
+  const el = document.getElementById(elId);
+  const tr = document.getElementById(trendId);
+  if (!el || !tr) return;
+  el.classList.remove('stat-flash');
+  void el.offsetWidth;
+  el.classList.add('stat-flash');
+  el.textContent = newVal;
+  tr.className = 'trend-pill ' + trendClass;
+  tr.innerHTML = trendText;
 }
 
-function updateProgress(done, total) {
-  const pct = Math.round((done / total) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-label').textContent = done < total
-    ? `Hitting ${done} / ${total} domains...`
-    : 'Blitz complete';
+function updateStats() {
+  const dTotal = totalHit - prev.total;
+  if (dTotal) { animateStat('stat-total', totalHit, 'trend-total', (dTotal>0?'↑ ':'↓ ')+Math.abs(dTotal), dTotal>0?'trend-up':'trend-down'); prev.total = totalHit; }
+
+  const dBlocked = blockedHit - prev.blocked;
+  if (dBlocked) { animateStat('stat-blocked', blockedHit, 'trend-blocked', '↑ '+dBlocked, 'trend-red'); prev.blocked = blockedHit; }
+
+  const dUns = unsanctionedHit - prev.unsanctioned;
+  if (dUns) { animateStat('stat-unsanctioned', unsanctionedHit, 'trend-unsanctioned', '↑ '+dUns, 'trend-amber'); prev.unsanctioned = unsanctionedHit; }
+
+  const newDns = running ? randBetween(Math.max(1, dnsRate-2), dnsRate+6) : Math.max(0, dnsRate - randBetween(1,3));
+  const dDns = newDns - prev.dns;
+  dnsRate = newDns;
+  animateStat('stat-dns', newDns, 'trend-dns', (dDns>=0?'↑ ':'↓ ')+Math.abs(dDns), dDns>=0?'trend-blue':'trend-down');
+  prev.dns = newDns;
 }
 
+// ─── PROGRESS / TIMER ────────────────────────────────────────────────────────
+let sessionEndTime = 0;
+let timerInterval  = null;
+
+function startTimer(durationMs) {
+  sessionEndTime = Date.now() + durationMs;
+  timerInterval = setInterval(() => {
+    const remaining = Math.max(0, sessionEndTime - Date.now());
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    const elapsed  = durationMs - remaining;
+    const pct = Math.min(100, Math.round((elapsed / durationMs) * 100));
+
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-pct').textContent  = `${mins}:${String(secs).padStart(2,'0')} left`;
+    document.getElementById('prog-label').textContent = running ? `Session running — burst mode active` : 'Complete';
+
+    if (remaining <= 0) clearInterval(timerInterval);
+  }, 1000);
+}
+
+// ─── AMBIENT DRIFT ───────────────────────────────────────────────────────────
+let ambientTimer = null;
+
+function startAmbientDrift() {
+  if (ambientTimer) return;
+  ambientTimer = setInterval(() => {
+    if (running) return;
+    if (Math.random() < 0.3) {
+      const delta = randBetween(1, 4);
+      appsTracked += delta;
+      animateStat('stat-apps', appsTracked.toLocaleString(), 'trend-apps', `↑ ${delta}`, 'trend-up');
+    }
+  }, 4000);
+}
+
+// ─── MAIN ENGINE ─────────────────────────────────────────────────────────────
 async function startBlitz() {
   if (running) return;
   running = true;
   abortFlag = false;
+  dnsRate = 0;
 
   document.getElementById('btn-launch').style.display = 'none';
   document.getElementById('btn-stop').style.display = 'block';
   document.getElementById('pulse-dot').classList.add('active');
 
-  const selected = shuffle(DOMAINS).slice(0, randBetween(38, 55));
-  let done = 0;
+  // Pick spikers and build queue
+  pickSpikers();
+  const sessionMs = sessionMins * 60 * 1000;
+  const queue = buildQueue(sessionMs);
+  let qIdx = 0;
 
-  updateProgress(0, selected.length);
-  updateStats(selected.length);
+  startTimer(sessionMs);
 
-  for (const entry of selected) {
-    if (abortFlag) break;
+  const sessionEnd = Date.now() + sessionMs;
 
-    // Fire the DNS hit — no-cors so CORS failures are expected and fine
-    fetch(`https://${entry.domain}`, {
-      mode: 'no-cors',
-      cache: 'no-store',
-      headers: { 'pragma': 'no-cache' }
-    }).catch(() => {});
+  // BURST LOOP — fires clusters of requests, then rests between bursts
+  while (Date.now() < sessionEnd && !abortFlag) {
+    // Burst: 5-12 rapid hits
+    const burstSize = randBetween(5, 12);
 
-    if (entry.cat === 'blocked') blockedHit++;
-    totalHit++;
-    done++;
+    for (let i = 0; i < burstSize && Date.now() < sessionEnd && !abortFlag; i++) {
+      const entry = queue[qIdx % queue.length];
+      qIdx++;
 
-    addFeedItem(entry);
-    updateStats(selected.length - done);
-    updateProgress(done, selected.length);
+      const isSpike = spikers.some(s => s.domain === entry.domain);
 
-    await sleep(randBetween(350, 900));
+      fetch(`https://${entry.domain}`, {
+        mode: 'no-cors',
+        cache: 'no-store',
+        headers: { 'pragma': 'no-cache' }
+      }).catch(() => {});
+
+      if (entry.cat === 'blocked') blockedHit++;
+      if (entry.cat === 'unsanctioned') unsanctionedHit++;
+      totalHit++;
+      dnsRate = Math.min(80, dnsRate + randBetween(2, 6));
+
+      addFeedItem(entry, isSpike);
+      updateStats();
+
+      // Intra-burst delay: fast (200-600ms) — simulates multiple employees
+      await sleep(randBetween(200, 600));
+    }
+
+    if (abortFlag || Date.now() >= sessionEnd) break;
+
+    // Inter-burst quiet period: 20-70 seconds — simulates employees doing other work
+    const quietMs = randBetween(20000, 70000);
+    const quietLabel = `Quiet period — next burst in ~${Math.round(quietMs/1000)}s`;
+    document.getElementById('prog-label').textContent = quietLabel;
+
+    // Decay DNS rate during quiet
+    const quietEnd = Date.now() + quietMs;
+    while (Date.now() < quietEnd && !abortFlag && Date.now() < sessionEnd) {
+      await sleep(3000);
+      dnsRate = Math.max(0, dnsRate - randBetween(2, 5));
+      updateStats();
+    }
+
+    if (!abortFlag && Date.now() < sessionEnd) {
+      document.getElementById('prog-label').textContent = 'Session running — burst mode active';
+    }
   }
 
   finishBlitz();
@@ -724,11 +1094,16 @@ async function startBlitz() {
 
 function finishBlitz() {
   running = false;
-  document.getElementById('btn-launch').style.display = 'block';
-  document.getElementById('btn-launch').textContent = '↺  Run Again';
+  clearInterval(timerInterval);
+  const btn = document.getElementById('btn-launch');
+  btn.style.display = 'flex';
+  btn.innerHTML = '&#8635;&nbsp; Run Again';
   document.getElementById('btn-stop').style.display = 'none';
   document.getElementById('pulse-dot').classList.remove('active');
-  updateStats(0);
+  document.getElementById('prog-label').textContent = 'Session complete';
+  document.getElementById('prog-pct').textContent = '—';
+  updateStats();
+  startAmbientDrift();
 }
 
 function stopBlitz() {
@@ -740,14 +1115,26 @@ function stopBlitz() {
 function clearFeed() {
   const list = document.getElementById('feed-list');
   list.innerHTML = '<div class="feed-empty" id="feed-empty"><div class="icon">📡</div>Hit <strong>Launch AI Blitz</strong> on an enrolled demo device.<br>DNS hits will surface in the Lookout dashboard within ~5–15 min.</div>';
-  totalHit = 0;
-  blockedHit = 0;
+  totalHit = 0; blockedHit = 0; unsanctionedHit = 0; dnsRate = 0;
+  prev.total = 0; prev.blocked = 0; prev.unsanctioned = 0; prev.dns = 0;
+  clearInterval(timerInterval);
   document.getElementById('prog-fill').style.width = '0%';
-  document.getElementById('prog-pct').textContent = '0%';
+  document.getElementById('prog-pct').textContent = '—';
   document.getElementById('prog-label').textContent = 'Ready';
-  updateStats(0);
-  document.getElementById('btn-launch').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Launch AI Blitz';
+  document.getElementById('spiker-row').style.display = 'none';
+  ['stat-total','stat-blocked','stat-unsanctioned','stat-dns'].forEach(id => document.getElementById(id).textContent = '0');
+  ['trend-total','trend-blocked','trend-unsanctioned','trend-dns'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'trend-pill';
+    el.innerHTML = '&#8593; 0';
+  });
+  const btn = document.getElementById('btn-launch');
+  btn.style.display = 'flex';
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Launch AI Blitz';
 }
+
+// Kick off ambient drift on load
+startAmbientDrift();
 </script>
 </body>
 </html>
